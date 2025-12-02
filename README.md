@@ -1,6 +1,6 @@
 # HealthKit ETL Pipeline
 
-A Python-based ETL (Extract, Transform, Load) pipeline for processing Apple HealthKit data. This project extracts health and workout data from Apple Health exports, transforms it into a structured format, and loads it into BigQuery for analysis and visualization.
+A Python-based ETL (Extract, Transform, Load) pipeline for processing Apple HealthKit data. This project extracts health and workout data from Apple Health XML exports, transforms it into a structured format, and loads it into BigQuery for analysis and visualization.
 
 ## Project Structure
 
@@ -68,6 +68,35 @@ The pipeline processes the following metrics:
 Configuration is managed through:
 - `src/config.py`: Main configuration file
 - `config/` directory: Additional configuration files
+
+### Config directory and `config.json`
+
+The `config/` directory is ignored by git and should contain your local runtime configuration:
+- `config/config.json`: required. Holds the BigQuery targets and local paths the pipeline needs.
+- (optional) any other environment-specific files you do not want in version control (e.g., a service account key if you point `GOOGLE_APPLICATION_CREDENTIALS` here).
+
+Create `config/config.json` with these keys (replace placeholder values with your own):
+
+```json
+{
+  "BQ_PROJECT": "your-gcp-project-id",
+  "BQ_DATASET": "bigquery_dataset_name",
+  "BQ_TABLES": {
+    "health_record": "table_for_daily_metrics",
+    "workouts_grouped": "table_for_workouts_grouped",
+    "vo2max": "table_for_vo2max",
+    "sleep_boxplots": "table_for_sleep_boxplots",
+    "regimen_boxplots": "table_for_regimen_boxplots"
+  },
+  "PATHS": {
+    "downloads": "/absolute/path/to/your/AppleHealth/exports"
+  }
+}
+```
+
+- `BQ_PROJECT` and `BQ_DATASET` tell the loader where to write.
+- `BQ_TABLES` maps each dataset produced by the pipeline to the destination table name.
+- `PATHS.downloads` must point to the directory containing your `export*.zip` Apple Health exports; the script picks the latest archive automatically.
 
 ## Logging
 
